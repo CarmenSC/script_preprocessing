@@ -6,22 +6,26 @@ BEGIN {
 }
 
 NR == 1 {
+    header = $0;                      # Save the header row to print later
     for (i = 1; i <= NF; i++) {
         if ($i == column_name) {
             target_col = i;           # Store the index of the column
+            found_column = 1;         # Flag that the column has been found
             break;                    # Stop the loop once the column is found
         }
     }
-    if (target_col == "") {
+    if (!found_column) {
         print "Column '" column_name "' not found.";
         exit;                        # Exit if the column is not found in the header
     }
 }
 
-NR > 1 {
-    if ($target_col == search_value) {  # Check if the target column contains the specific value
-        print $0;                       # Print the whole line if it matches
+NR > 1 && found_column {
+    if ($target_col == search_value) {
+        if (!printed_header) {       # Check if header has been printed
+            print header;             # Print the header before the first matching line
+            printed_header = 1;       # Mark header as printed
+        }
+        print $0;                    # Print the matching row
     }
 }
-#how to: awk -f script_name.awk "Column Name" "Value to Search" yourfile.csv
-#example: awk -f search_by_header.awk "Status" "\"=2370\"" yourfile.csv
