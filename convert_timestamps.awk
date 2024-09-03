@@ -43,3 +43,6 @@ NR == 1 {
     }
     print "";  # Finish the data line
 }
+
+## awk -f convert_timestamps.awk input.csv output.csv "Timestamp1" "Timestamp2"
+
