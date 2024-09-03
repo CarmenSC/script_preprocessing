@@ -14,6 +14,7 @@ FNR == 1 {
     first = 1;              # Flag to handle the first column printing
     for (i = 1; i <= NF; i++) {
         if (!($i in delete_columns)) {
+            keep_columns[i] = 1;   # Mark this column to keep
             if (!first) {
                 printf("%s", OFS); # Print comma before every column except the first
             }
@@ -40,6 +41,3 @@ FNR == 1 {
     }
     print "";   # Finish the data line
 }
-
-#Usage:
-#awk -f script.awk columns_to_delete.txt input.csv > output.csv
