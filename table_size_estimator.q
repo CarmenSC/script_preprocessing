@@ -1,23 +1,38 @@
-// Function to estimate the size of various data types in a kdb+/q table, including handling of lists
+// Function to estimate the size of various data types in a kdb+/q table
 estimateSizeAllTypes: {[t]
     typeSizes: enlist[`boolean`guid`byte`short`int`long`real`float`char`symbol`timestamp`month`date`datetime`timespan`minute`second`time]!enlist[1 16 1 2 4 8 4 8 1 8 8 8 8 8 8 4 4 4];
-    totalSize: sum typeSizes[type each flip t] * count each flip t;
+    totalSize: 0;
 
-    // Calculate for symbol columns (distinct symbols)
-    totalSize +: sum 8 * count each distinct each t where type each t = `symbol;
+    // Iterate over each column
+    cols: cols t;
+    eachColSizes: {[col]
+        colType: type first col;
 
-    // Calculate size for lists (more complex structures require recursion)
-    totalSize +: sum {[x]
-        if[type x = 0;
-            :sum estimateSizeAllTypes each x;
-        ];
-        if[10h = type x;
-            :sum count each x;
-        ];
-        :0
-    } each flip t;
+        // Basic types calculation
+        if[colType in keys typeSizes;
+            :count[col] * typeSizes colType];
 
-    totalSize
+        // Handle symbol columns
+        if[colType = -11;
+            :8 * count distinct col];
+
+        // Handle character strings (list of chars)
+        if[colType = 10h;
+            :sum count each col];
+
+        // Recursively handle nested lists
+        if[colType = 0;
+            :sum estimateSizeAllTypes each col];
+
+        // Default case for types not handled specifically
+        :0;
+    } each t;
+
+    // Calculate total size by summing up all column sizes
+    totalSize +: sum eachColSizes;
+
+    // Return the estimated size
+    totalSize;
 };
 
 // Test the function with a mixed-type table including lists and strings
