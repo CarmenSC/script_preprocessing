@@ -1,0 +1,17 @@
+import os
+
+def is_empty(file_path):
+    if os.stat(file_path).st_size == 0:
+        return True
+    
+    with open(file_path, 'r') as file:
+        content = file.read()
+        stripped_content = content.strip()
+        return len(stripped_content) == 0
+
+# Usage
+file_path = 'your_file.csv'
+if is_empty(file_path):
+    print(f"{file_path} is empty (0 bytes or contains only formatting characters/newlines).")
+else:
+    print(f"{file_path} contains meaningful content.")
