@@ -1,0 +1,11 @@
+/ Function to determine precision based on ending of the timestamp
+getPrecision: {[t]
+    / Extract nanosecond part and convert to string
+    s: string t mod 1000000000;
+    $[s like "*000000"; `nano;
+      s like "*000"; `micro;
+      `milli]
+}
+
+
+t: update precision: getPrecision each timestamp1 from t
