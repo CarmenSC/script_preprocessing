@@ -1,11 +1,21 @@
-/ Function to determine precision based on ending of the timestamp
-getPrecision: {[t]
-    / Extract nanosecond part and convert to string
-    s: string t mod 1000000000;
-    $[s like "*000000"; `nano;
-      s like "*000"; `micro;
-      `milli]
+
+// Function to determine precision based on the ending digits of the timestamp
+determinePrecision: {[t]
+    s: string[t]; // Convert timestamp to string
+    // Slice the string to check the last digits precisely
+    milli: (3#reverse s) = "000";
+    micro: (6#reverse s) = "000000";
+    nano: not milli and not micro;
+    $[milli; "millisecond";
+      micro; "microsecond";
+      nano;  "nanosecond"]
 }
 
+// Example table with the timestamp column
+t: ([] timestamp1: `timestamp$ ("2024.09.23D14:23:34.123456789"; "2024.09.23D14:23:34.123456000"; "2024.09.23D14:23:34.123000000"))
 
-t: update precision: getPrecision each timestamp1 from t
+// Apply the function to determine precision for each timestamp
+update precision: determinePrecision each timestamp1 from t
+
+
+
